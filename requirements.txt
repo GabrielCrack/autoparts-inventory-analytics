@@ -1,0 +1,10 @@
+# autoparts-inventory-analytics - dependencias
+# Instalar con: pip install -r requirements.txt
+
+pandas>=2.1
+numpy>=1.26
+Faker>=20.0
+SQLAlchemy>=2.0
+streamlit>=1.50
+plotly>=5.20
+openpyxl>=3.1

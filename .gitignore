@@ -1,0 +1,19 @@
+# Datos generados (se recrean con generate_data.py / db_builder.py)
+data/raw/*.csv
+data/*.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Sistema operativo / editor
+.DS_Store
+.vscode/
+.idea/
