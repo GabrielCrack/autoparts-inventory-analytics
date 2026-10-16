@@ -1,71 +1,66 @@
 # 🔧 Autoparts Inventory Analytics
 
-Proyecto de **Data Engineering + BI** que simula la gestión de inventario, ventas y logística de un **distribuidor de repuestos automotrices** (Frenos, Suspensión, Motor, Electricidad y Transmisión).
-
-Genera datos sintéticos, los modela en una base de datos relacional local, calcula métricas clásicas de supply chain / retail analytics con SQL avanzado, y las expone en un **dashboard interactivo con Streamlit**.
-
-> 100% gratuito y local: no requiere licencias, servicios cloud ni credenciales. Todo corre con Python + SQLite.
+*Proyecto integral de Data Engineering & Business Intelligence enfocado en la optimización de la cadena de suministro, automatización de pipelines ETL y analítica avanzada de inventario para un distribuidor de repuestos automotrices.*
 
 ---
 
-## 📌 Objetivo del proyecto
+## 📊 Resumen Ejecutivo
 
-Proyecto pensado como **pieza de portfolio** para vacantes Trainee / Junior de Analista de Datos y BI, mostrando:
+Este proyecto resuelve problemáticas críticas del sector retail y logístico —como quiebres de stock, sobrestock e inmovilización de capital— utilizando un stack tecnológico moderno, robusto y 100% local (**Python, SQLite, Streamlit y Plotly**). 
 
-- Generación y modelado de datos (Faker, NumPy, Pandas)
-- Diseño de base de datos relacional (SQLAlchemy + SQLite)
-- SQL avanzado: CTEs, CTE recursivas, `JOIN`, `GROUP BY`, funciones de ventana (`OVER`)
-- Métricas de negocio reales de un distribuidor: rotación de inventario, punto de reorden, clasificación ABC, dead stock
-- Visualización interactiva con Streamlit + Plotly
-- Buenas prácticas: código modular, PEP 8, funciones documentadas, control de errores
+Diseñado específicamente como una **pieza central de portfolio para posiciones de Data Analyst y BI**, demuestra competencias de extremo a extremo:
+1. **Data Engineering:** Generación automatizada de datos sintéticos (`Faker`, `NumPy`) y modelado de bases de datos relacionales mediante SQLAlchemy.
+2. **SQL Avanzado:** Uso intensivo de CTEs, tablas de calendario recursivas y funciones de ventana (`WINDOW FUNCTIONS`) para resolver lógica de negocio compleja sin sobrecargar la memoria de la aplicación.
+3. **Lógica de Negocio Logística:** Implementación automatizada de métricas de supply chain como Punto de Reorden (ROP), Stock de Seguridad dinámico ($Z=1.65$), Días de Suministro (DOS), Clasificación ABC (Pareto) y detección de *Dead Stock*.
+4. **Visualización y BI:** Un dashboard interactivo de alto rendimiento que integra filtros relacionales en tiempo real y capacidades de exportación ejecutiva (CSV/Excel).
 
 ---
 
-## 🏗️ Arquitectura
+## ⚙️ Arquitectura y Pipeline de Datos
 
 ```mermaid
 flowchart LR
     A["generate_data.py<br/>Faker + NumPy"] -->|CSV| B[("data/raw/*.csv")]
     B --> C["db_builder.py<br/>SQLAlchemy"]
     C --> D[("data/inventory.db<br/>SQLite")]
-    D --> E["src/queries.py<br/>SQL: CTE, JOIN, Window Functions"]
+    D --> E["src/queries.py<br/>SQL Avanzado (CTEs & Window Functions)"]
     E --> F["app.py<br/>Streamlit + Plotly"]
-    F --> G(["Dashboard interactivo"])
+    F --> G(["Dashboard Interactivo"])
 ```
 
-1. **`generate_data.py`** crea 150 productos, su inventario y 5.000 ventas de los últimos 180 días.
-2. **`db_builder.py`** carga esos CSV a una base **SQLite** local (`data/inventory.db`) vía **SQLAlchemy**, con índices sobre las columnas más consultadas.
-3. **`src/queries.py`** contiene toda la lógica analítica: cada métrica de negocio es una función Python que devuelve un `DataFrame`, resultado de una consulta SQL parametrizada (sin concatenar strings, para evitar SQL injection).
-4. **`app.py`** consume esas funciones y las renderiza en un dashboard interactivo, sin escribir SQL propio.
+1. **`generate_data.py`**: Simula transacciones de un distribuidor, creando un catálogo de 150 repuestos, inventario por zonas de almacén y 5.000 registros de ventas históricos de los últimos 180 días.
+2. **`db_builder.py`**: Carga los datos crudos hacia una base relacional SQLite (`data/inventory.db`) a través de SQLAlchemy, optimizando índices para consultas analíticas rápidas.
+3. **`src/queries.py`**: La capa analítica central. Cada indicador de negocio se procesa mediante consultas SQL seguras (con parámetros para prevenir inyección SQL) que retornan DataFrames listos para consumir.
+4. **`app.py`**: Interfaz de usuario interactiva en Streamlit que conecta los filtros de la barra lateral con la capa de consultas, actualizando dinámicamente el análisis visual.
 
 ---
 
-## 🗂️ Estructura del repositorio
+## 🗂️ Estructura del Repositorio
 
 ```
 autoparts-inventory-analytics/
-├── app.py                  # Dashboard Streamlit
-├── generate_data.py         # Generador de datos sintéticos (Faker + NumPy)
-├── db_builder.py            # CSV -> SQLite (SQLAlchemy)
-├── requirements.txt
-├── .gitignore
-├── README.md
+├── app.py                  # Aplicación principal del Dashboard (Streamlit)
+├── generate_data.py        # Generador de datos sintéticos realistas
+├── db_builder.py           # ETL de carga: CSVs a SQLite relacional
+├── requirements.txt        # Dependencias del proyecto
+├── .gitignore              # Archivos excluidos (entornos virtuales y binarios)
+├── README.md               # Documentación oficial
 ├── src/
 │   ├── __init__.py
-│   └── queries.py           # Consultas SQL complejas (capa analítica)
+│   └── queries.py          # Capa de consultas SQL avanzadas
 └── data/
-    ├── raw/                 # CSVs generados (products, inventory, sales)
-    └── inventory.db          # Base SQLite generada (no se versiona)
+    ├── raw/                # Archivos CSV fuente generados
+    └── inventory.db          # Base de datos SQLite persistente
 ```
 
 ---
 
-## 🧬 Modelo de datos (Diagrama ER)
+## 🧬 Modelo Entidad-Relación (DER)
 
 ```mermaid
 erDiagram
-    PRODUCTS ||--|| INVENTORY : "tiene stock en"
-    PRODUCTS ||--o{ SALES : "se vende en"
+    PRODUCTS ||--|| INVENTORY : "posee stock en"
+    PRODUCTS ||--o{ SALES : "registra ventas en"
 
     PRODUCTS {
         string product_id PK
@@ -74,176 +69,133 @@ erDiagram
         string product_name
         string category
         string supplier_type
-        float  unit_cost_usd
-        float  unit_price_usd
-        int    lead_time_days
+        float unit_cost_usd
+        float unit_price_usd
+        int lead_time_days
     }
+    
     INVENTORY {
-        string product_id PK_FK
-        int    current_stock
+        string product_id PK
+        int current_stock
         string warehouse_zone
     }
+    
     SALES {
         string order_id PK
         string date
         string product_id FK
-        int    quantity_sold
+        int quantity_sold
         string channel
-        float  total_usd
+        float total_usd
     }
 ```
 
-### Diccionario de datos
+---
 
-**`products.csv`** (150 filas — catálogo maestro)
+## 📐 Lógica de Negocio y Modelado Matemático
 
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `product_id` | string | Identificador único (`P0001`...`P0150`) |
-| `sku` | string | Código interno de depósito |
-| `oem_code` | string | Código de referencia del fabricante original |
-| `product_name` | string | Nombre comercial (categoría + marca) |
-| `category` | string | Frenos / Suspensión / Motor / Electricidad / Transmisión |
-| `supplier_type` | string | Nacional o Importado (define el `lead_time_days`) |
-| `unit_cost_usd` | float | Costo de compra unitario |
-| `unit_price_usd` | float | Precio de venta unitario |
-| `lead_time_days` | int | Días de reposición del proveedor (2-7 nacional, 15-45 importado) |
+Las métricas clave implementadas en `src/queries.py` responden a estándares reales de gestión de inventarios:
 
-**`inventory.csv`** (150 filas — 1 por producto)
+### 1. Rotación y Días de Suministro (DOS)
+$$
+\text{Demanda Diaria Promedio} = \frac{\text{Unidades Vendidas (180 días)}}{180}
+$$
 
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `product_id` | string | FK a `products` |
-| `current_stock` | int | Unidades actualmente en depósito |
-| `warehouse_zone` | string | Zona física de almacenamiento (`Zona-A`...`Zona-E`, una por categoría) |
+$$
+\text{Días de Suministro (DOS)} = \frac{\text{Stock Actual}}{\text{Demanda Diaria Promedio}}
+$$
 
-**`sales.csv`** (5.000 filas — últimos 180 días)
+### 2. Punto de Reorden (ROP) y Stock de Seguridad
+Modelo probabilístico de reabastecimiento bajo nivel de servicio del 95% ($Z = 1.65$):
 
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `order_id` | string | Identificador de la orden de venta |
-| `date` | date | Fecha de la venta (`YYYY-MM-DD`) |
-| `product_id` | string | FK a `products` |
-| `quantity_sold` | int | Unidades vendidas en la orden |
-| `channel` | string | Mostrador / E-Commerce / Taller Mecánico |
-| `total_usd` | float | Importe total de la línea de venta |
+$$
+\text{Stock de Seguridad} = Z \times \sigma_{\text{demanda diaria}} \times \sqrt{\text{Lead Time (días)}}
+$$
+
+$$
+\text{ROP} = (\text{Demanda Diaria Promedio} \times \text{Lead Time}) + \text{Stock de Seguridad}
+$$
+
+> *Nota técnica:* El desvío estándar de la demanda diaria ($\sigma$) se calcula considerando series temporales completas de 180 días (incluyendo días con ventas en cero) generadas mediante una **CTE recursiva** en SQL.
+
+**Clasificación Operativa del Inventario:**
+* 🔴 **Agotado:** $\text{Stock Actual} = 0$
+* 🟠 **Reordenar:** $\text{Stock Actual} \le \text{Punto de Reorden}$
+* 🔵 **Sobrestocado:** Cobertura mayor a 120 días al ritmo actual de venta.
+* 🟢 **Óptimo:** Rango operativo saludable.
+
+### 3. Clasificación ABC / Ley de Pareto (80/20)
+Clasificación de productos basada en el aporte acumulado a la facturación mediante funciones de ventana analíticas (`SUM() OVER (ORDER BY revenue DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)`):
+* **Clase A:** Productos que concentran hasta el $80\%$ de los ingresos.
+* **Clase B:** Productos entre el $80\%$ y $95\%$ de la facturación acumulada.
+* **Clase C:** Cola larga de baja rotación (último $5\%$).
+
+### 4. Detección de Dead Stock (Inventario Obsoleto)
+Identificación de productos con existencias activas ($\text{Stock} > 0$) y sin transacciones de venta en los últimos **60 días**:
+$$
+\text{Capital Inmovilizado (USD)} = \text{Stock Actual} \times \text{Costo Unitario}
+$$
 
 ---
 
-## 📐 Fórmulas y lógica de negocio
+## 🖥️ Características del Dashboard
 
-Todas están implementadas en `src/queries.py`.
-
-### 1. Rotación de inventario y Días de Suministro (DOS)
-
-$$\text{Demanda diaria promedio} = \frac{\text{Unidades vendidas (180 días)}}{180}$$
-
-$$\text{Días de Suministro (DOS)} = \frac{\text{Stock actual}}{\text{Demanda diaria promedio}}$$
-
-$$\text{Rotación de inventario} = \frac{\text{Unidades vendidas (180 días)}}{\text{Stock actual}}$$
-
-### 2. Punto de Reorden (ROP) con Stock de Seguridad
-
-Modelo clásico de inventario con demanda variable (nivel de servicio 95%, Z = 1.65):
-
-$$\text{Stock de Seguridad} = Z \times \sigma_{\text{demanda diaria}} \times \sqrt{\text{Lead Time (días)}}$$
-
-$$\text{Punto de Reorden (ROP)} = (\text{Demanda diaria promedio} \times \text{Lead Time}) + \text{Stock de Seguridad}$$
-
-> `σ_demanda diaria` (desvío estándar de la demanda diaria) se calcula sobre una serie temporal **completa** de 180 días por producto (incluyendo días en cero), construida con una **CTE recursiva** que genera el calendario y lo cruza con las ventas reales.
-
-**Estados de stock** derivados del ROP:
-
-| Estado | Condición |
-|---|---|
-| 🔴 Agotado | `current_stock == 0` |
-| 🟠 Reordenar | `current_stock <= reorder_point` |
-| 🔵 Sobrestocado | cobertura > 120 días de venta al ritmo actual |
-| 🟢 Óptimo | resto de los casos |
-
-### 3. Clasificación ABC / Pareto (regla 80/20)
-
-Productos ordenados por ingreso generado, con ingreso acumulado calculado mediante función de ventana (`SUM(...) OVER (ORDER BY ... ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)`):
-
-| Clase | % acumulado de ingresos |
-|---|---|
-| A | hasta el 80% |
-| B | entre 80% y 95% |
-| C | el resto (cola larga) |
-
-### 4. Dead Stock
-
-Productos con `current_stock > 0` cuya última venta ocurrió hace **más de 60 días** (o que nunca vendieron):
-
-$$\text{Capital Inmovilizado} = \text{Stock actual} \times \text{Costo unitario}$$
+* **Tarjetas de KPI Ejecutivas:** Facturación global en USD, volumen de productos en riesgo crítico y capital total inmovilizado.
+* **Filtros Dinámicos en Sidebar:** Selección por categoría de repuesto y canal de venta que recompilan las consultas SQL en vivo.
+* **Visualizaciones Interactivas (Plotly):**
+  * Gráfico de anillos para la distribución de ingresos por clasificación ABC.
+  * Gráfico de barras de riesgo de quiebre con gradiente de color continuo (rojo a naranja) y etiquetado inteligente para stock cero.
+  * Tabla interactiva de alertas operativas con formato numérico y monetario optimizado (`st.column_config`).
+* **Reportes Exportables:** Botones integrados para descarga directa de alertas y dead stock en formatos **CSV** y **Excel (`openpyxl`)**.
 
 ---
 
-## 🖥️ Dashboard (Streamlit)
+## 🚀 Guía de Instalación y Ejecución Local
 
-- **KPI Cards**: Ventas Totales (USD), Productos Críticos (Agotado + Reordenar), Capital Inmovilizado.
-- **Filtros en sidebar**: Categoría de repuesto y Canal de venta — recalculan las consultas SQL en vivo (no son un filtro visual sobre datos ya cargados).
-- **Gráfico 1**: Distribución ABC de productos (Plotly, donut chart).
-- **Gráfico 2**: Alertas de stock (Agotado / Reordenar / Sobrestocado) + tabla interactiva exportable a **CSV y Excel**.
-- **Gráfico 3**: Top 10 repuestos con mayor riesgo de quiebre de stock.
-- Detalle expandible de **Dead Stock**.
-
-📸 *Sugerencia de capturas para el README final:* vista general del dashboard, gráfico ABC, tabla de alertas con el botón de exportación, y el gráfico de Top 10 en riesgo.
-
----
-
-## 🚀 Cómo correrlo
+Sigue estos pasos en tu terminal para poner en marcha el proyecto:
 
 ```bash
-# 1. Clonar el repo y crear entorno virtual
+# 1. Clonar el repositorio
 git clone https://github.com/<tu-usuario>/autoparts-inventory-analytics.git
 cd autoparts-inventory-analytics
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
-# 2. Instalar dependencias
+# 2. Crear y activar el entorno virtual
+python -m venv .venv
+# En Windows PowerShell:
+.venv\Scripts\Activate.ps1
+# En Mac / Linux:
+# source .venv/bin/activate
+
+# 3. Instalar las dependencias del proyecto
 pip install -r requirements.txt
 
-# 3. Generar los datos sintéticos
+# 4. Generar los datos sintéticos iniciales
 python generate_data.py
 
-# 4. Construir la base de datos SQLite
+# 5. Construir la base de datos relacional SQLite
 python db_builder.py
 
-# 5. (Opcional) probar las consultas por consola
-python -m src.queries
-
-# 6. Levantar el dashboard
+# 6. Levantar la aplicación de Streamlit
 streamlit run app.py
 ```
 
-El dashboard queda disponible en `http://localhost:8501`.
+El dashboard se abrirá automáticamente en tu navegador web predeterminado en `http://localhost:8501`.
 
 ---
 
-## 🛠️ Stack tecnológico
+## 🛠️ Stack Tecnológico
 
-| Capa | Tecnología |
+| Componente | Tecnología |
 |---|---|
-| Generación de datos | Python, Faker, NumPy |
-| Procesamiento | Pandas |
-| Base de datos | SQLite + SQLAlchemy |
-| Analítica | SQL (CTEs, CTE recursiva, window functions) |
-| Visualización | Streamlit, Plotly |
-| Exportación | openpyxl (Excel) |
-
----
-
-## 🔭 Posibles mejoras futuras
-
-- Agregar una tabla `suppliers` normalizada (hoy `supplier_type` vive en `products`).
-- Versionar snapshots diarios de inventario para calcular rotación con stock promedio real (hoy se aproxima con el stock actual).
-- Simular estacionalidad por categoría (ej. mayor demanda de frenos/batería en invierno).
-- Migrar la capa de persistencia a PostgreSQL manteniendo la misma interfaz de `src/queries.py`.
-- Tests automatizados (pytest) sobre las funciones de `src/queries.py`.
+| **Generación de Datos** | Python, Faker, NumPy |
+| **Manipulación de Datos** | Pandas |
+| **Persistencia y ORM** | SQLite, SQLAlchemy |
+| **Capa Analítica** | SQL Avanzado (CTEs, CTEs Recursivas, Window Functions) |
+| **Interfaz de Usuario / BI** | Streamlit, Plotly |
+| **Exportación de Reportes** | Openpyxl |
 
 ---
 
 ## 📄 Licencia
 
-Proyecto de uso educativo / portfolio. Podés reutilizarlo libremente citando la fuente.
+Este proyecto se distribuye bajo la Licencia MIT. Es de libre uso y adaptación para fines educativos y de portfolio profesional.
